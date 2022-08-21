@@ -2,6 +2,7 @@ import os
 import argparse
 import requests
 import imageio
+import numpy as np
 from PIL import Image
 
 
@@ -220,15 +221,97 @@ class CheersUP():
             images.append(imageio.v3.imread(f"{self.couple_dir}/{i}.png"))
         imageio.mimsave("couple.gif", images, duration=self.duration/1000)
 
+    # ============================================================
+
+    def save_circulation_png(self, images, bg_color, oval_radian, oval_x, oval_y):
+        ''' 保存恋爱循环逐帧图片 '''
+        bg_image = Image.new("RGB", (600, 300), bg_color)
+        # 根据下标控制人物旋转或者停下干杯
+        oval_count = len(oval_radian)
+        index = self.index
+        if oval_count < index < oval_count*2:
+            index = oval_count
+        # 计算图片坐标，和图片放在一起用于排序
+        image_infos = []
+        count = len(images)
+        for i in range(count):
+            # 计算人物图片坐标
+            oval_index = (index + oval_count//count*i + count-2) % oval_count
+            x = bg_image.size[0]//2 - images[i].size[0]//2 + int(oval_x[oval_index])
+            y = bg_image.size[1]//2 - images[i].size[1]//2 + int(oval_y[oval_index]) + 0
+            # 判断图片是否需要翻转
+            if oval_x[oval_index] < 0:
+                images[i] = images[i].transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            image_infos.append((images[i], (x, y)))
+        # 先按y坐标，再按x坐标排序
+        image_infos.sort(key = lambda x : (x[1][1], x[1][0]))
+        # 拼接图片
+        for i in range(count):
+            image, position = image_infos[i]
+            bg_image.paste(image, position, mask=image)
+        bg_image.save(f"{self.circulation_dir}/{self.index}.png")
+        self.index += 1
+
+    def save_circulation_gif(self, configs):
+        ''' 保存恋爱循环动态图片 '''
+        self.circulation_dir = f"{self.temp_dir}/circulation"
+        self.make_dir(self.circulation_dir)
+        self.index = 0
+        # 获取资源图片
+        res_images = []
+        for config in configs:
+            res_image = self.get_res_image(config["animation"][0]["img"])
+            res_images.append(res_image)
+        # 获取多个背景图片颜色的平均值
+        banner = configs[0]["animation"][0]
+        bg_color = np.array([0, 0, 0, 0])
+        count = len(configs)
+        for i in range(count):
+            bg_color += np.array(self.get_bg_color(res_images[i], banner["frames"][7]))
+        bg_color //= count
+        bg_color = tuple(bg_color)
+        # 计算椭圆坐标
+        a = 100
+        b = 50
+        if count == 2:
+            a = 62
+            b = 31
+        oval_count = 12
+        oval_radian = np.arange(0, 2*np.pi, 2*np.pi/oval_count)
+        yc = np.sin(oval_radian)
+        xc = np.cos(oval_radian)
+        radio = (a * b) / np.sqrt(np.power(yc * a, 2.0) + np.power(xc * b, 2.0))
+        oval_x = radio * xc
+        oval_y = radio * yc
+        # 合成图片
+        frames = banner["frames"][13:-11]
+        for i, frame in enumerate(frames):
+            images = [self.get_crop_image(res_images[x], frame) for x in range(count)]
+            self.save_circulation_png(images, bg_color, oval_radian, oval_x, oval_y)
+        # 保存gif图片
+        images = []
+        image_range = range(12, 25) if self.repeat else range(self.index)
+        for i in image_range:
+            images.append(imageio.v3.imread(f"{self.circulation_dir}/{i}.png"))
+        imageio.mimsave("circulation.gif", images, duration=self.duration/1000*2)
+
+
     def test(self):
-        url1 = "http://s1.hdslb.com/bfs/static/baselabs/json/9562e7646ba4bf5961cc8278615c10d47499c1a6.json"
-        url2 = "http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain"
+        url1 = "http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain"    #CheersUP
+        url2 = "http://i0.hdslb.com/bfs/baselabs/0edc00a83666f149a7db6b5066e90de3618b3ca0.plain"    #干杯京剧
+        url3 = "http://s1.hdslb.com/bfs/static/baselabs/json/e1de7fa803aba05aea3e93990c68e4e97aaf9cb6.json"    #干杯故宫
+        url4 = "http://s1.hdslb.com/bfs/static/baselabs/json/d045e03d6198b58d4a0f268ee28a0e4ff9f78a93.json"    #干杯2022
         config1 = cup.download_resouces(url1)
         config2 = cup.download_resouces(url2)
-        self.save_avatar_gif(config2)
-        self.save_banner_gif(config2)
-        self.save_cheers_gif(config2)
-        cup.save_couple_gif(config1, config2)
+        config3 = cup.download_resouces(url3)
+        config4 = cup.download_resouces(url4)
+        # self.save_avatar_gif(config2)
+        # self.save_banner_gif(config2)
+        # self.save_cheers_gif(config2)
+        # cup.save_couple_gif(config1, config2)
+        # cup.save_circulation_gif([config1, config2])
+        # cup.save_circulation_gif([config1, config2, config3])
+        cup.save_circulation_gif([config1, config2, config3, config4])
 
 
 if __name__ == "__main__":
@@ -251,6 +334,10 @@ if __name__ == "__main__":
     parser.add_argument('--couple', '-cp',
                         action='store_true',
                         help='生成情侣gif图片',
+                        default=False)
+    parser.add_argument('--circulation', '-cl',
+                        action='store_true',
+                        help='生成恋爱循环gif图片',
                         default=False)
     parser.add_argument('--distance', '-dd',
                         type=int,
@@ -292,4 +379,14 @@ if __name__ == "__main__":
         config1 = cup.download_resouces(args.urls[0])
         config2 = cup.download_resouces(args.urls[1])
         cup.save_couple_gif(config1, config2)
+    if args.circulation:
+        if len(args.urls) < 2 or len(args.urls) > 4:
+            print("请输入2到4个配置文件地址")
+            exit()
+        configs = []
+        for url in args.urls:
+            config = cup.download_resouces(url)
+            configs.append(config)
+        cup.save_circulation_gif(configs)
+
 
