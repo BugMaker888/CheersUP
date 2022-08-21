@@ -36,6 +36,13 @@ class CheersUP():
     def download_resouces(self, config_url):
         ''' 下载资源，返回资源配置文件 '''
         config = requests.get(config_url).json()
+        # 兼容干杯2022
+        if "avatar" not in config:
+            config["avatar"] = []
+            config["avatar"].append(config.pop("out"))
+            config["avatar"].append(config.pop("in"))
+            config["animation"] = []
+            config["animation"].append(config.pop("pop"))
         for avatar in config["avatar"]:
             self.download_image(avatar["img"])
         for banner in config["animation"]:
