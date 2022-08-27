@@ -1,19 +1,15 @@
 
 [CheersUP](https://github.com/BugMaker888/CheersUP)是一个基于Python3的命令行工具，可以制作动态头像、动态横幅，干杯动画、情侣动态图等。
 
-支持的NFT及数字藏品头像：
+目前支持的NFT及数字藏品头像：
 
-| 名称           | 类型     | 地址 |
-| -------------- | -------- | ---- |
-| CheersUP       | NFT      | [OpenSea](https://opensea.io/collection/cheers-up) |
-| 干杯2022       | 数字藏品 |      |
-| 干杯！京剧     | 数字藏品 |      |
-| 干杯！故宫     | 数字藏品 |      |
-| ~~洛天依十周年~~   | 数字藏品 |      |
-| 亿点点海洋探秘 | 数字藏品 |      |
-| 人间梦游       | 数字藏品 |      |
-| 伊万生日会     | 数字藏品 |      |
-| 花花Haya       | 数字藏品 |      |
+| 名称         | 类型     | 发行量       | 预览地址 |
+| ------------ | :------: | ------------ | -------- |
+| CheersUP     | NFT      | 5000 / 10000 | [CheersUP](https://opensea.io/collection/cheers-up) |
+| 干杯2022     | 数字藏品 | 7042 / 10000 | [干杯2022](https://www.bilibili.com/blackboard/pangu/nft-collection.html?item_id=1004) |
+| 干杯！京剧   | 数字藏品 | 1728 / 1790  | [干杯！京剧](https://www.bilibili.com/blackboard/pangu/nft-collection.html?item_id=1056) |
+| 干杯！故宫   | 数字藏品 | 1730 / 2000  | [干杯！故宫](https://www.bilibili.com/blackboard/pangu/nft-collection.html?item_id=1152) |
+| 干杯！洛天依 | 数字藏品 | 1967 / 2022  | [干杯！洛天依](https://www.bilibili.com/blackboard/pangu/nft-collection.html?item_id=1234) |
 
 
 ## 工具使用方法
@@ -57,14 +53,13 @@ optional arguments:
 
 按照文章[《CheersUP动态图生成工具》](https://mirror.xyz/bugmaker.eth/tc5kyBHZlM6A6vqBi9xB8UiJtECgIVQNid0GFPXh-wM)的教程获取NFT头像的动画配置文件地址。
 
-我的`NFT`的配置文件地址为：`http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain`
+我的`NFT`头像的配置文件地址为：`http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain`
 
 
 ### 一、制作动态头像 (可用于Discord)
 
 ![](https://cdn.jsdelivr.net/gh/BugMaker888/CheersUP/preview/avatar.gif)
 
-执行命令：
 ``` bash
 python cup.py -a -u http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain
 ```
@@ -73,7 +68,6 @@ python cup.py -a -u http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96
 
 ![](https://cdn.jsdelivr.net/gh/BugMaker888/CheersUP/preview/banner.gif)
 
-执行命令：
 ``` bash
 python cup.py -b -u http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain
 ```
