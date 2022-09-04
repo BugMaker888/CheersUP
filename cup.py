@@ -189,7 +189,7 @@ class CheersUP():
         # 翻转左边的图片
         image1 = image1.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         x = bg_image.size[0] // 2 - image1.size[0] + distance
-        y = bg_image.size[1] - image1.size[1] - 0
+        y = bg_image.size[1] - image1.size[1]
         bg_image.paste(image1, (x, y), mask=image1)
         # 添加右边的图片
         x = bg_image.size[0] // 2 - distance
@@ -233,12 +233,13 @@ class CheersUP():
             index = oval_count
         # 计算图片坐标，和图片放在一起用于排序
         image_infos = []
-        count = len(images)
+        #count为人物数量
+        count = len(images) 
         for i in range(count):
-            # 计算人物图片坐标
+            # 计算人物图片坐标，(count-2)可以控制第一个人物的起点，即3、4、5点钟方向
             oval_index = (index + oval_count//count*i + count-2) % oval_count
             x = bg_image.size[0]//2 - images[i].size[0]//2 + int(oval_x[oval_index])
-            y = bg_image.size[1]//2 - images[i].size[1]//2 + int(oval_y[oval_index]) + 0
+            y = bg_image.size[1]//2 - images[i].size[1]//2 + int(oval_y[oval_index])
             # 判断图片是否需要翻转
             if oval_x[oval_index] < 0:
                 images[i] = images[i].transpose(Image.Transpose.FLIP_LEFT_RIGHT)
@@ -246,8 +247,7 @@ class CheersUP():
         # 先按y坐标，再按x坐标排序
         image_infos.sort(key = lambda x : (x[1][1], x[1][0]))
         # 拼接图片
-        for i in range(count):
-            image, position = image_infos[i]
+        for (image, position) in image_infos:
             bg_image.paste(image, position, mask=image)
         bg_image.save(f"{self.circulation_dir}/{self.index}.png")
         self.index += 1
@@ -276,42 +276,49 @@ class CheersUP():
         if count == 2:
             a = 62
             b = 31
-        oval_count = 12
+        # 将椭圆切割成12等份，因为12可以被2、3、4整除，人物之间的间隔就可以相等
+        oval_count = 12 
         oval_radian = np.arange(0, 2*np.pi, 2*np.pi/oval_count)
         yc = np.sin(oval_radian)
         xc = np.cos(oval_radian)
         radio = (a * b) / np.sqrt(np.power(yc * a, 2.0) + np.power(xc * b, 2.0))
         oval_x = radio * xc
         oval_y = radio * yc
+        # 因为前面有太多空白帧，所以从第13帧开始
+        frame_start = 13
+        # 总帧数为36，转一圈出现12帧，停下干杯12帧，转一圈消失12帧
+        frame_count = oval_count * 3
         # 合成图片
-        frames = banner["frames"][13:-11]
-        for i, frame in enumerate(frames):
+        for i in range(frame_count):
+            frame = banner["frames"][frame_start+i]
             images = [self.get_crop_image(res_images[x], frame) for x in range(count)]
             self.save_circulation_png(images, bg_color, oval_radian, oval_x, oval_y)
         # 保存gif图片
         images = []
-        image_range = range(12, 25) if self.repeat else range(self.index)
+        image_range = range(oval_count, oval_count*2) if self.repeat else range(self.index)
         for i in image_range:
             images.append(imageio.v3.imread(f"{self.circulation_dir}/{i}.png"))
         imageio.mimsave("circulation.gif", images, duration=self.duration/1000*2)
 
+    # ============================================================
 
     def test(self):
         url1 = "http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain"    #CheersUP
         url2 = "http://i0.hdslb.com/bfs/baselabs/0edc00a83666f149a7db6b5066e90de3618b3ca0.plain"    #干杯京剧
         url3 = "http://s1.hdslb.com/bfs/static/baselabs/json/e1de7fa803aba05aea3e93990c68e4e97aaf9cb6.json"    #干杯故宫
         url4 = "http://s1.hdslb.com/bfs/static/baselabs/json/d045e03d6198b58d4a0f268ee28a0e4ff9f78a93.json"    #干杯2022
-        config1 = cup.download_resouces(url1)
-        config2 = cup.download_resouces(url2)
-        config3 = cup.download_resouces(url3)
-        config4 = cup.download_resouces(url4)
-        # self.save_avatar_gif(config2)
-        # self.save_banner_gif(config2)
-        # self.save_cheers_gif(config2)
-        # cup.save_couple_gif(config1, config2)
-        # cup.save_circulation_gif([config1, config2])
-        # cup.save_circulation_gif([config1, config2, config3])
-        cup.save_circulation_gif([config1, config2, config3, config4])
+        config1 = self.download_resouces(url1)
+        config2 = self.download_resouces(url2)
+        config3 = self.download_resouces(url3)
+        config4 = self.download_resouces(url4)
+        # self.repeat = True
+        # self.save_avatar_gif(config1)
+        # self.save_banner_gif(config1)
+        # self.save_cheers_gif(config1)
+        # self.save_couple_gif(config2, config1)
+        # self.save_circulation_gif([config1, config2])
+        # self.save_circulation_gif([config1, config2, config3])
+        self.save_circulation_gif([config1, config2, config3, config4])
 
 
 if __name__ == "__main__":

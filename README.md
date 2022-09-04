@@ -51,9 +51,9 @@ optional arguments:
 
 ### 零、获取配置文件地址
 
-按照文章[《CheersUP动态图生成工具》](https://mirror.xyz/bugmaker.eth/tc5kyBHZlM6A6vqBi9xB8UiJtECgIVQNid0GFPXh-wM)的教程获取NFT头像的动画配置文件地址。
+按照文章[《CheersUP动态图生成工具使用教程》](https://bugmaker.eth.limo/gif-maker-for-cheersup-nft.html)的教程获取NFT头像的动画配置文件地址。
 
-我的`NFT`头像的配置文件地址为：`http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain`
+例如，我获取到的NFT头像配置文件地址为：`http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae96f7c32fbee49b3.plain`
 
 
 ### 一、制作动态头像 (可用于Discord)
@@ -132,9 +132,11 @@ python cup.py -cp -dd 50 -u http://s1.hdslb.com/bfs/static/baselabs/json/9562e76
 
 ### 五、制作恋爱循环动态图
 
-支持2到4个配置文件地址，从3点钟方向开始，按顺时针方向排列。
+支持2到4个配置文件地址。
 
 #### 1、双人恋爱循环效果：
+
+从3点钟方向开始，按顺时针方向排列：
 
 ![](https://cdn.jsdelivr.net/gh/BugMaker888/CheersUP/preview/circulation_2.gif)
 
@@ -144,6 +146,8 @@ python cup.py -cl -u http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae9
 
 #### 2、三人运动效果：
 
+从4点钟方向开始，按顺时针方向排列：
+
 ![](https://cdn.jsdelivr.net/gh/BugMaker888/CheersUP/preview/circulation_3.gif)
 
 ``` bash
@@ -151,6 +155,8 @@ python cup.py -cl -u http://i0.hdslb.com/bfs/baselabs/a1c1d0406601836f9375543ae9
 ```
 
 #### 3、四人运动效果：
+
+从5点钟方向开始，按顺时针方向排列：
 
 ![](https://cdn.jsdelivr.net/gh/BugMaker888/CheersUP/preview/circulation_4.gif)
 
